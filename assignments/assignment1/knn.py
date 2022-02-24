@@ -1,5 +1,5 @@
 import numpy as np
-
+from scipy import stats
 
 class KNN:
     """
@@ -125,11 +125,9 @@ class KNN:
         pred, np array of int (num_test_samples) - predicted class index 
            for every test sample
         '''
-        num_test = dists.shape[0]
-        num_test = dists.shape[0]
-        pred = np.zeros(num_test, np.int)
-        for i in range(num_test):
-            # TODO: Implement choosing best class based on k
-            # nearest training samples
-            pass
+        sort_neibors_idx = np.argsort(dists, axis=1)
+        sort_neibors_idx_k = sort_neibors_idx[:, :self.k]
+        k_neibors_class = self.train_y[sort_neibors_idx_k]
+        pred, _ = stats.mode(k_neibors_class, axis=1)
+        pred = np.concatenate(pred)
         return pred
