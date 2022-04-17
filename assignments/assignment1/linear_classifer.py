@@ -14,8 +14,12 @@ def softmax(predictions):
         probability for every class, 0..1
     '''
     # TODO implement softmax
-    # Your final implementation shouldn't have any loops
-    raise Exception("Not implemented!")
+    predictions = predictions.T
+    predictions_max = np.max(predictions, axis=0)
+    norm_predictions = predictions - predictions_max
+    exp_predictions = np.exp(norm_predictions)
+    softmax = exp_predictions / np.sum(exp_predictions, axis=0)
+    return softmax.T
 
 
 def cross_entropy_loss(probs, target_index):
@@ -32,9 +36,18 @@ def cross_entropy_loss(probs, target_index):
       loss: single value
     '''
     # TODO implement cross-entropy
-    # Your final implementation shouldn't have any loops
-    raise Exception("Not implemented!")
+    if probs.ndim == 1 and isinstance(target_index, int):
+        true = np.zeros_like(probs)
+        true[target_index] = 1
+        log_probs = np.log(probs)
+        cross_entropy = (-1) * np.sum(true * log_probs)
+    else:
+        true = np.zeros_like(probs)
+        _ = [np.put(row, idx, 1) for row, idx in zip(true, target_index)]
+        log_probs = np.log(probs)
+        cross_entropy = (-1) * np.sum(true * log_probs, axis=1)
 
+    return cross_entropy
 
 def softmax_with_cross_entropy(predictions, target_index):
     '''
@@ -51,10 +64,17 @@ def softmax_with_cross_entropy(predictions, target_index):
       loss, single value - cross-entropy loss
       dprediction, np array same shape as predictions - gradient of predictions by loss value
     '''
-    # TODO implement softmax with cross-entropy
-    # Your final implementation shouldn't have any loops
-    raise Exception("Not implemented!")
 
+    probs = softmax(predictions)
+    loss = cross_entropy_loss(probs, target_index)
+
+    if probs.ndim == 1 and isinstance(target_index, int):
+        true = np.zeros_like(probs)
+        true[target_index] = 1
+    else:
+        true = np.zeros_like(probs)
+        _ = [np.put(row, idx, 1) for row, idx in zip(true, target_index)]
+    dprediction = probs - true
     return loss, dprediction
 
 
